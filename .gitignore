@@ -98,3 +98,6 @@ pyrightconfig.json
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+
+# local test
+test.ipynb
