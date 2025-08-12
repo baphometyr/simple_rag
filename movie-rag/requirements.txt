@@ -2,3 +2,6 @@ pandas==2.1.4
 numpy==1.26.4              
 sentence-transformers==5.0.0
 faiss-cpu==1.11.0.post1    
+accelerate==1.10.0
+dotenv==0.9.9
+openai==1.99.8
