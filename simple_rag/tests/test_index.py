@@ -1,7 +1,7 @@
 import os
 import shutil
 import pytest
-from movie_rag.index import Embedding, IndexBuilder
+from simple_rag.index import Embedding, IndexBuilder
 
 EXAMPLE_TEXTS = [
     "The sun shines in the sky",
