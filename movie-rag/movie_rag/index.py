@@ -96,7 +96,8 @@ class IndexBuilder:
         with open(path, 'r', encoding='utf-8') as f:
             self.texts = [line.strip() for line in f.readlines()]
 
-    def load_collection(self, collection_name: str) -> None:
+    @classmethod
+    def load_collection(cls, collection_name: str, embedding: Embedding, base_dir:str = 'indices') -> None:
         """
         Loads an existing collection (index + texts) by name.
 
@@ -106,13 +107,16 @@ class IndexBuilder:
         Raises:
             FileNotFoundError: If either the index or text file is missing.
         """
-        self._set_paths(collection_name)
+        instance = cls(embedding, base_dir)
+        instance._set_paths(collection_name)
 
-        if not os.path.exists(self.index_path) or not os.path.exists(self.texts_path):
-            raise FileNotFoundError(f"Collection '{collection_name}' not found in '{self.collection_path}'")
+        if not os.path.exists(instance.index_path) or not os.path.exists(instance.texts_path):
+            raise FileNotFoundError(f"Collection '{collection_name}' not found in '{instance.collection_path}'")
 
-        self.load_index(self.index_path)
-        self.load_texts(self.texts_path)
+        instance.load_index(instance.index_path)
+        instance.load_texts(instance.texts_path)
+        
+        return instance
 
     def save_index(self, path: str) -> None:
         """
