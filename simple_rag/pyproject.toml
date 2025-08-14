@@ -1,0 +1,25 @@
+[project]
+name = "simple_rag"
+version = "0.1"
+description = "A simple rag pipeline"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { file = "LICENSE" }
+authors = [
+    { name = "baphometyr"},
+]
+
+dependencies = [
+    "pandas==2.1.4",              
+    "numpy==1.26.4",              
+    "sentence-transformers==5.0.0",
+    "faiss-cpu==1.11.0.p,"ost1    
+    "accelerate==1.10.0",
+    "dotenv==0.9.9",
+    "openai==1.99.8",
+    "pytest==8.4.1",
+]
+
+[project.urls]
+Homepage = "https://github.com/baphometyr"
+Repository = "https://github.com/baphometyr/portfolio-ai/tree/main/simple_rag"
