@@ -11,7 +11,7 @@ class BaseLLMProvider(ABC):
     """
 
     @abstractmethod
-    def generate(self, prompt: str) -> str:
+    def __call__(self, prompt: str) -> str:
         pass
 
 class LocalModelProvider(BaseLLMProvider):
@@ -72,7 +72,7 @@ class LocalModelProvider(BaseLLMProvider):
         return prompt
 
 
-    def generate(self, query: str, context: str = "", max_new_tokens: int = 100, temperature: float = 0.7, top_p: float = 0.9) -> str:
+    def __call__(self, query: str, context: str = "", max_new_tokens: int = 100, temperature: float = 0.7, top_p: float = 0.9) -> str:
         prompt = self.build_prompt(query, context)
         inputs = self.tokenizer(prompt, return_tensors="pt").to(self.model.device)
 
@@ -96,7 +96,7 @@ class OpenAIProvider(BaseLLMProvider):
         self.model_name = model_name
         self.client = OpenAI(api_key=api_key)
 
-    def generate(self, query: str, context: str = "") -> str:
+    def __call__(self, query: str, context: str = "") -> str:
         messages = [
             {
                 "role": "system",
@@ -132,7 +132,7 @@ class AzureOpenAIProvider(BaseLLMProvider):
             api_version=api_version
         )
 
-    def generate(self, query: str, context: str = "") -> str:
+    def __call__(self, query: str, context: str = "") -> str:
         messages = [
             {
                 "role": "system",

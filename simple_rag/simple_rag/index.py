@@ -175,7 +175,7 @@ class IndexBuilder:
         self.save_index(self.index_path)
         self.save_texts(self.texts_path)
 
-    def query(self, query: str, top_k: int = 5) -> List[Tuple[Optional[str], float]]:
+    def __call__(self, query: str, top_k: int = 5) -> List[Tuple[Optional[str], float]]:
         """
         Searches the FAISS index for the top-k most similar texts to the query.
 
@@ -186,6 +186,8 @@ class IndexBuilder:
         Returns:
             List[Tuple[Optional[str], float]]: A list of tuples with (matched_text, distance).
         """
+        query = query.strip()
+
         if self.index is None:
             raise ValueError("Index not loaded or built.")
 
@@ -197,11 +199,15 @@ class IndexBuilder:
 
         query_embedding = self.embedding.encode([query])
         distances, indices = self.index.search(query_embedding, top_k)
-        results: List[Tuple[Optional[str], float]] = []
+        docs = []
+        dists = []
+
 
         for i in range(top_k):
             idx = indices[0][i]
             dist = distances[0][i]
             text = self.texts[idx] if idx < len(self.texts) else None
-            results.append((text, dist))
-        return results
+            docs.append(text)
+            dists.append(dist)
+        
+        return docs, dists

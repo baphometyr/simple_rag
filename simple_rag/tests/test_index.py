@@ -53,19 +53,19 @@ def test_load_collection(embedding, temp_dir, built_index):
 
 def test_query(built_index):
     query = "programming in Python"
-    results = built_index.query(query, top_k=3)
+    docs, _ = built_index(query, top_k=3)
 
-    assert len(results) == 3
+    assert len(docs) == 3
     # La respuesta más cercana debería ser "Python is a programming language"
-    assert results[0][0] == "Python is a programming language"
+    assert docs[0] == "Python is a programming language"
 
 def test_top_k_warning(built_index):
     # Solicitar más resultados de los que hay
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
-        results = built_index.query("cielo", top_k=10)
+        docs, _ = built_index("cielo", top_k=10)
 
         # Se debe emitir advertencia
         assert any("top_k" in str(warning.message) for warning in w)
         # El número de resultados se ajusta al tamaño del texto
-        assert len(results) == len(EXAMPLE_TEXTS)
+        assert len(docs) == len(EXAMPLE_TEXTS)
