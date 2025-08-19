@@ -1,6 +1,6 @@
 [project]
 name = "simple_rag"
-version = "0.1"
+version = "0.1.2"
 description = "A simple rag pipeline"
 readme = "README.md"
 requires-python = ">=3.8"

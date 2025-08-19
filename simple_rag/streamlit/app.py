@@ -40,8 +40,6 @@ def build_collection():
     with col1:
         if st.button("Create collection"):
             if collection_name and collection_path and texts:
-                st.write(f"texts: {len(texts)}")
-
                 try:
                     # build embedding
                     embedding = Embedding(model_name=embedding_model)
@@ -70,8 +68,6 @@ def build_collection():
             st.rerun()
             
 
-
-
 # --- SIDE BAR ---
 with st.sidebar:
     collection = st.selectbox(
@@ -86,7 +82,6 @@ with st.sidebar:
         build_collection()
 
     
-
 
 
 # --- MESSAGES ---
@@ -105,9 +100,11 @@ if user_query := st.chat_input():
     st.session_state.messages.append({"role": "user", "content": user_query})
 
     # model response
+    model_response = "test response"
+    st.write(st.session_state.index.texts)
 
     # write assistant response and save to session state
-    st.chat_message("assistant").write("test response")
-    st.session_state.messages.append({"role": "assistant", "content": "test response"})
+    st.chat_message("assistant").write(model_response)
+    st.session_state.messages.append({"role": "assistant", "content": model_response})
 
 

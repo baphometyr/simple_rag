@@ -1,6 +1,7 @@
 import os
 import faiss
 import warnings
+import pickle
 
 from typing import List, Tuple, Optional
 from sentence_transformers import SentenceTransformer
@@ -75,7 +76,7 @@ class IndexBuilder:
         self.collection_name = collection_name
         self.collection_path = os.path.join(self.base_dir, collection_name)
         self.index_path = os.path.join(self.collection_path, "index.faiss")
-        self.texts_path = os.path.join(self.collection_path, "texts.txt")
+        self.texts_path = os.path.join(self.collection_path, "texts.pkl")
 
     def load_index(self, path: str) -> None:
         """
@@ -93,9 +94,11 @@ class IndexBuilder:
         Args:
             path (str): Path to the text file containing one text per line.
         """
-        with open(path, 'r', encoding='utf-8') as f:
-            self.texts = [line.strip() for line in f.readlines()]
-
+        
+        with open(path, "rb") as f:
+            self.texts = pickle.load(f)
+        
+        
     @classmethod
     def load_collection(cls, collection_name: str, embedding: Embedding, base_dir:str = 'indices') -> None:
         """
@@ -137,9 +140,9 @@ class IndexBuilder:
         Args:
             path (str): Destination text file path.
         """
-        with open(path, 'w', encoding='utf-8') as f:
-            for line in self.texts:
-                f.write(f"{line}\n")
+        with open(path, "wb") as f:
+            pickle.dump(self.texts, f)     
+        
 
     def build_collection(
         self,
