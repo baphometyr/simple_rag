@@ -97,8 +97,15 @@ class IndexBuilder:
         
         with open(path, "rb") as f:
             self.texts = pickle.load(f)
-        
-        
+    
+
+    @staticmethod
+    def list_collections(base_path: str = "indices") -> list[str]:
+        """Return all available collections (directories with FAISS indices)."""
+        if not os.path.exists(base_path):
+            return []
+        return [d for d in os.listdir(base_path) if os.path.isdir(os.path.join(base_path, d))]
+
     @classmethod
     def load_collection(cls, collection_name: str, embedding: Embedding, base_dir:str = 'indices') -> None:
         """
