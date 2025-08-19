@@ -1,6 +1,6 @@
 import torch
 
-from openai import AzureOpenAI
+from openai import AzureOpenAI, OpenAI
 from huggingface_hub import login
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from abc import ABC, abstractmethod
