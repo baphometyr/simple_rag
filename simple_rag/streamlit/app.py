@@ -53,6 +53,8 @@ def build_collection():
                         nlist=clusters
                         )
                     st.session_state.index = index
+                    st.session_state.collection = collection_name
+
                 
                 except Exception as e:
                     st.error(e)
@@ -72,7 +74,7 @@ def build_collection():
 with st.sidebar:
     collection = st.selectbox(
         "Collection:",
-        ("Email", "Home phone", "Mobile phone"),
+        IndexBuilder.list_collections(),
         key='collection',
         index=None, 
         placeholder="Select a collection...", 
