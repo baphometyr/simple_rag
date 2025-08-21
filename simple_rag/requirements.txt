@@ -6,3 +6,4 @@ accelerate==1.10.0
 dotenv==0.9.9
 openai==1.99.8
 pytest==8.4.1
+PyPDF2==3.0.1
