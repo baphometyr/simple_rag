@@ -84,8 +84,8 @@ def build_collection():
 
     if extension == 'CSV':
         # Upload pdf files
-        col_name = st.text_input("Column name to extract")
-        uploaded_file = st.file_uploader("Choose a CSV file", accept_multiple_files=False, disabled = col_name=="")
+        col_name = st.text_input("Column name to extract (empty for all columns)")
+        uploaded_file = st.file_uploader("Choose a CSV file", accept_multiple_files=False)
         
         if uploaded_file:
             if uploaded_file.type != 'text/csv':
@@ -95,7 +95,18 @@ def build_collection():
                 try:
                     stringio = io.StringIO(uploaded_file.getvalue().decode("utf-8"))
                     reader = csv.DictReader(stringio)
-                    texts = [row[col_name] for row in reader]
+                    # if extract all columns
+                    if col_name == "":
+                        texts = []
+                        for row in reader:
+                            text = "\n".join(f"{k}: {row[k]}" for k in row)
+                            texts.append(text)
+
+                    # extract one column
+                    else:
+                        texts = [row[col_name] for row in reader]
+
+                    st.write(texts[:10])
                 except:
                     st.error("Error reading CSV file, Please verify that the column exists in the file.")
         
