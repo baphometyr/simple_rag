@@ -106,7 +106,6 @@ def build_collection():
                     else:
                         texts = [row[col_name] for row in reader]
 
-                    st.write(texts[:10])
                 except:
                     st.error("Error reading CSV file, Please verify that the column exists in the file.")
         
@@ -239,6 +238,12 @@ with st.sidebar:
         on_change=on_llm_change,
         placeholder="Select a LLM...", 
         label_visibility="collapsed")
+
+    # Parameters
+    st.header("Parameters:")
+    temperature = st.slider("LLM Temperature", 0, 100, 70, help="Temperature for the LLM model.")
+    max_tokens = st.number_input("Max Tokens", 1, 1000, 150, 50, help="Maximum number of tokens to generate.")
+    top_k = st.number_input("Top K", 1, 20, 5, help="Number of documents to retrieve.")
     
 
 # --- MESSAGES ---
@@ -271,8 +276,27 @@ if user_query := st.chat_input():
         llm=st.session_state.model,
         )
 
-    model_response = pipeline.run(user_query)
+    model_response, (docs, distances) = pipeline.run(
+        user_query, 
+        return_docs=True, 
+        max_tokens=max_tokens, 
+        temperature=temperature/100, 
+        top_k=top_k,
+        stream=True)
 
+    # def stream_response(response):
+    #     for chunk in response:
+    #         if chunk.choices[0].delta.content:
+    #             yield chunk.choices[0].delta.content
+
+    # # write assistant response and save to session state
+    # st.chat_message("assistant").write_stream(stream_response(model_response))
+    
     # write assistant response and save to session state
-    st.chat_message("assistant").write(model_response)
+    st.chat_message("assistant").write_stream(model_response)
+
     st.session_state.messages.append({"role": "assistant", "content": model_response})
+
+    with st.expander("Recovered Documents", expanded=False):
+        for doc, distance in zip(docs, distances):
+            st.write(f"- {doc} (Distance: {distance:.4f})")
