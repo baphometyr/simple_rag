@@ -72,13 +72,13 @@ class LocalModelProvider(BaseLLMProvider):
         return prompt
 
 
-    def __call__(self, query: str, context: str = "", max_new_tokens: int = 100, temperature: float = 0.7, top_p: float = 0.9) -> str:
+    def __call__(self, query: str, context: str = "", max_tokens: int = 100, temperature: float = 0.7, top_p: float = 0.9) -> str:
         prompt = self.build_prompt(query, context)
         inputs = self.tokenizer(prompt, return_tensors="pt").to(self.model.device)
 
         outputs = self.model.generate(
             **inputs,
-            max_new_tokens=max_new_tokens,
+            max_new_tokens=max_tokens,
             temperature=temperature,
             top_p=top_p,
             eos_token_id=self.tokenizer.eos_token_id
@@ -96,7 +96,8 @@ class OpenAIProvider(BaseLLMProvider):
         self.model_name = model_name
         self.client = OpenAI(api_key=api_key)
 
-    def __call__(self, query: str, context: str = "") -> str:
+    def __call__(self, query: str, context: str = "", temperature=.7, max_tokens: int = 150, stream: bool = False) -> str:
+
         messages = [
             {
                 "role": "system",
@@ -114,8 +115,13 @@ class OpenAIProvider(BaseLLMProvider):
         response = self.client.chat.completions.create(
             model=self.model_name,
             messages=messages,
-            max_tokens=150
+            max_tokens=max_tokens,
+            temperature=temperature,
+            stream=stream,
         )
+        if stream:
+            return response
+
         return response.choices[0].message.content
 
 
@@ -132,7 +138,8 @@ class AzureOpenAIProvider(BaseLLMProvider):
             api_version=api_version
         )
 
-    def __call__(self, query: str, context: str = "") -> str:
+    def __call__(self, query: str, context: str = "", max_tokens: int = 150, temperature: float = 0.7, stream: bool = False) -> str:
+
         messages = [
             {
                 "role": "system",
@@ -150,6 +157,10 @@ class AzureOpenAIProvider(BaseLLMProvider):
         response = self.client.chat.completions.create(
             model=self.deployment_name,
             messages=messages,
-            max_tokens=150
+            max_tokens=max_tokens,
+            temperature=temperature,
+            stream=stream,
         )
+        if stream:
+            return response
         return response.choices[0].message.content

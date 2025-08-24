@@ -84,8 +84,8 @@ def build_collection():
 
     if extension == 'CSV':
         # Upload pdf files
-        col_name = st.text_input("Column name to extract")
-        uploaded_file = st.file_uploader("Choose a CSV file", accept_multiple_files=False, disabled = col_name=="")
+        col_name = st.text_input("Column name to extract (empty for all columns)")
+        uploaded_file = st.file_uploader("Choose a CSV file", accept_multiple_files=False)
         
         if uploaded_file:
             if uploaded_file.type != 'text/csv':
@@ -95,7 +95,17 @@ def build_collection():
                 try:
                     stringio = io.StringIO(uploaded_file.getvalue().decode("utf-8"))
                     reader = csv.DictReader(stringio)
-                    texts = [row[col_name] for row in reader]
+                    # if extract all columns
+                    if col_name == "":
+                        texts = []
+                        for row in reader:
+                            text = "\n".join(f"{k}: {row[k]}" for k in row)
+                            texts.append(text)
+
+                    # extract one column
+                    else:
+                        texts = [row[col_name] for row in reader]
+
                 except:
                     st.error("Error reading CSV file, Please verify that the column exists in the file.")
         
@@ -228,6 +238,12 @@ with st.sidebar:
         on_change=on_llm_change,
         placeholder="Select a LLM...", 
         label_visibility="collapsed")
+
+    # Parameters
+    st.header("Parameters:")
+    temperature = st.slider("LLM Temperature", 0, 100, 70, help="Temperature for the LLM model.")
+    max_tokens = st.number_input("Max Tokens", 1, 1000, 150, 50, help="Maximum number of tokens to generate.")
+    top_k = st.number_input("Top K", 1, 20, 5, help="Number of documents to retrieve.")
     
 
 # --- MESSAGES ---
@@ -260,8 +276,27 @@ if user_query := st.chat_input():
         llm=st.session_state.model,
         )
 
-    model_response = pipeline.run(user_query)
+    model_response, (docs, distances) = pipeline.run(
+        user_query, 
+        return_docs=True, 
+        max_tokens=max_tokens, 
+        temperature=temperature/100, 
+        top_k=top_k,
+        stream=True)
 
+    # def stream_response(response):
+    #     for chunk in response:
+    #         if chunk.choices[0].delta.content:
+    #             yield chunk.choices[0].delta.content
+
+    # # write assistant response and save to session state
+    # st.chat_message("assistant").write_stream(stream_response(model_response))
+    
     # write assistant response and save to session state
-    st.chat_message("assistant").write(model_response)
+    st.chat_message("assistant").write_stream(model_response)
+
     st.session_state.messages.append({"role": "assistant", "content": model_response})
+
+    with st.expander("Recovered Documents", expanded=False):
+        for doc, distance in zip(docs, distances):
+            st.write(f"- {doc} (Distance: {distance:.4f})")
