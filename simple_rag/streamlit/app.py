@@ -1,3 +1,4 @@
+from gc import disable
 from simple_rag.index import IndexBuilder, Embedding
 from simple_rag.llm import OpenAIProvider, AzureOpenAIProvider, LocalModelProvider
 from simple_rag.pipeline import Pipeline
@@ -244,6 +245,8 @@ with st.sidebar:
     temperature = st.slider("LLM Temperature", 0, 100, 70, help="Temperature for the LLM model.")
     max_tokens = st.number_input("Max Tokens", 1, 1000, 150, 50, help="Maximum number of tokens to generate.")
     top_k = st.number_input("Top K", 1, 20, 5, help="Number of documents to retrieve.")
+    rerank = st.checkbox("Rerank", value=False, help="Rerank the documents.", disabled=True)
+
     
 
 # --- MESSAGES ---
@@ -284,18 +287,10 @@ if user_query := st.chat_input():
         top_k=top_k,
         stream=True)
 
-    # def stream_response(response):
-    #     for chunk in response:
-    #         if chunk.choices[0].delta.content:
-    #             yield chunk.choices[0].delta.content
-
-    # # write assistant response and save to session state
-    # st.chat_message("assistant").write_stream(stream_response(model_response))
     
     # write assistant response and save to session state
-    st.chat_message("assistant").write_stream(model_response)
-
-    st.session_state.messages.append({"role": "assistant", "content": model_response})
+    response_text = st.chat_message("assistant").write_stream(model_response)
+    st.session_state.messages.append({"role": "assistant", "content": response_text})
 
     with st.expander("Recovered Documents", expanded=False):
         for doc, distance in zip(docs, distances):
