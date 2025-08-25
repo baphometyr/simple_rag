@@ -57,7 +57,7 @@ pip install .[dev]
 The project includes a Streamlit-based web interface for testing.
 
 ```bash
-streamlit run streamlit_app/app.py
+streamlit run streamlit/app.py
 ```
 
 ### Demo Features
