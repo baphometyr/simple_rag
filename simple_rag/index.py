@@ -156,7 +156,8 @@ class IndexBuilder:
         collection_name: str,
         texts: List[str],
         use_advanced_index: bool = False,
-        nlist: int = 100
+        nlist: int = 100,
+        save: bool = True,
     ) -> None:
         """
         Builds a new FAISS index from a list of texts.
@@ -182,8 +183,10 @@ class IndexBuilder:
             self.index = faiss.IndexFlatL2(dim)
 
         self.index.add(embeddings)
-        self.save_index(self.index_path)
-        self.save_texts(self.texts_path)
+
+        if save:
+            self.save_index(self.index_path)
+            self.save_texts(self.texts_path)
 
     def __call__(self, query: str, top_k: int = 5) -> List[Tuple[Optional[str], float]]:
         """
